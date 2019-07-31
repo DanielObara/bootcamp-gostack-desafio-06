@@ -1,17 +1,31 @@
-import React, { useState, useCallback } from 'react';
-import { Keyboard } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Keyboard, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Container, Form, Input, SubmitButton } from './styles';
+import {
+	Container,
+	Form,
+	Input,
+	SubmitButton,
+	List,
+	User,
+	Avatar,
+	Name,
+	Bio,
+	ProfileButton,
+	ProfileButtonText,
+} from './styles';
 import api from '../../services/api';
 
 export default function Main() {
 	const [newUser, setUserName] = useState();
+	const [loading, setLoading] = useState(false);
 	const [users, setNewUser] = useState([]);
 
 	const fetchMyAPI = useCallback(async () => {
+		setLoading(true);
 		const res = await api.get(`/users/${newUser}`);
-		console.log('TCL: fetchMyAPI -> res', res);
-		console.log('Usuarios no array', users);
+
 		const data = {
 			nome: res.data.name,
 			login: res.data.login,
@@ -20,9 +34,20 @@ export default function Main() {
 		};
 		setNewUser([...users, data]);
 		setUserName('');
+		setLoading(false);
 		Keyboard.dismiss();
 		return res;
 	});
+
+	useEffect(() => {
+		const store = AsyncStorage.getItem('users');
+
+		if (store) setNewUser(JSON.parse(store));
+	}, []);
+
+	useEffect(() => {
+		AsyncStorage.setItem('users', JSON.stringify(users));
+	}, [users]);
 
 	return (
 		<Container>
@@ -34,10 +59,30 @@ export default function Main() {
 					value={newUser}
 					onChangeText={text => setUserName(text)}
 				/>
-				<SubmitButton onPress={() => fetchMyAPI()}>
-					<Icon name="add" size={20} color="#fff" />
+				<SubmitButton loading={loading} onPress={() => fetchMyAPI()}>
+					{loading ? (
+						<ActivityIndicator color="#fff" />
+					) : (
+						<Icon name="add" size={20} color="#fff" />
+					)}
 				</SubmitButton>
 			</Form>
+
+			<List
+				data={users}
+				keyExtractor={user => user.login}
+				renderItem={({ item }) => (
+					<User>
+						<Avatar source={{ uri: item.avatar }} />
+						<Name>{item.nome}</Name>
+						<Bio>{item.bio}</Bio>
+
+						<ProfileButton onPress={() => {}}>
+							<ProfileButtonText>Ver perfil</ProfileButtonText>
+						</ProfileButton>
+					</User>
+				)}
+			/>
 		</Container>
 	);
 }

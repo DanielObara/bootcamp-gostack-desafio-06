@@ -1,4 +1,4 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { createAppContainer, createStackNavigator } from 'react-navigation';
 
 import Main from './pages/Main';
 import User from './pages/User';
@@ -8,10 +8,22 @@ import User from './pages/User';
 // O createSwitchNavigator() não cria nenhum feedback visual,
 // apenas para conseguirmos redirecionar via código
 const Routes = createAppContainer(
-	createSwitchNavigator({
-		Main,
-		User,
-	})
+	createStackNavigator(
+		{
+			Main,
+			User,
+		},
+		{
+			headerLayoutPreset: 'center',
+			headerBackTitleVisible: false,
+			defaultNavigationOptions: {
+				headerStyle: {
+					backgroundColor: '#7159c1',
+				},
+				headerTintColor: '#FFF',
+			},
+		}
+	)
 );
 
 export default Routes;

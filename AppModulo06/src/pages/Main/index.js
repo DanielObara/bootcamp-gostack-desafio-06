@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { navigate } from '../../services/navigations';
 import {
 	Container,
 	Form,
@@ -40,9 +41,11 @@ export default function Main() {
 	});
 
 	useEffect(() => {
-		const store = AsyncStorage.getItem('users');
-
-		if (store) setNewUser(JSON.parse(store));
+		const fetchStore = async () => {
+			const store = await AsyncStorage.getItem('users');
+			if (store) setNewUser(JSON.parse(store));
+		};
+		fetchStore();
 	}, []);
 
 	useEffect(() => {
@@ -77,7 +80,7 @@ export default function Main() {
 						<Name>{item.nome}</Name>
 						<Bio>{item.bio}</Bio>
 
-						<ProfileButton onPress={() => {}}>
+						<ProfileButton onPress={() => navigate('User')}>
 							<ProfileButtonText>Ver perfil</ProfileButtonText>
 						</ProfileButton>
 					</User>

@@ -80,7 +80,7 @@ export default function Main() {
 						<Name>{item.nome}</Name>
 						<Bio>{item.bio}</Bio>
 
-						<ProfileButton onPress={() => navigate('User')}>
+						<ProfileButton onPress={() => navigate('User', item)}>
 							<ProfileButtonText>Ver perfil</ProfileButtonText>
 						</ProfileButton>
 					</User>

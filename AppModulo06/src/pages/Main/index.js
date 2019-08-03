@@ -66,7 +66,7 @@ export default function Main() {
 				/>
 				<SubmitButton loading={loading} onPress={() => fetchMyAPI()}>
 					{loading ? (
-						<ActivityIndicator color="#05BB52" />
+						<ActivityIndicator color="#fff" />
 					) : (
 						<Icon name="add" size={20} color="#fff" />
 					)}

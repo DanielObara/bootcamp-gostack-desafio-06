@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Browser } from './styles';
 
 export default function Repository({ navigation }) {
-	const repository = navigation.getParam('repository');
+	const repository = navigation.getParam('item');
 
 	return <Browser source={{ uri: repository.html_url }} />;
 }
@@ -16,5 +16,5 @@ Repository.propTypes = {
 };
 
 Repository.navigationOptions = ({ navigation }) => ({
-	title: navigation.getParam('repository').name,
+	title: navigation.getParam('item').name,
 });

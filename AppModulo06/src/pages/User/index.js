@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { navigate } from '../../services/navigations';
 import api from '../../services/api';
 import {
 	Container,
@@ -19,18 +20,36 @@ import {
 function User({ navigation }) {
 	const [stars, setStars] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [page, setPage] = useState(1);
+	const [refresh, setRefresh] = useState(false);
 	const user = navigation.getParam('item');
 
-	useEffect(() => {
-		const fetchAPI = async () => {
-			setLoading(true);
-			const response = await api.get(`/users/${user.login}/starred`);
-			setStars([...stars, ...response.data]);
-			setLoading(false);
-		};
-		fetchAPI();
-	}, []);
+	// Cria função para chamada API
+	const fetchAPI = async pg => {
+		setLoading(true);
+		const response = await api.get(`/users/${user.login}/starred`, {
+			params: { pg },
+		});
+		console.tron.log('TCL: fetchAPI -> pg', pg);
+		console.tron.log('TCL: fetchAPI -> response', response);
+		setStars(pg >= 2 ? [...stars, ...response.data] : response.data);
 
+		setLoading(false);
+		setRefresh(false);
+	};
+	useEffect(() => {
+		fetchAPI(page);
+	}, [page]);
+
+	const refreshList = () => {
+		setRefresh(true);
+		setStars([]);
+	};
+	const loadMore = () => {
+		const nextPage = page + 1;
+
+		fetchAPI(nextPage);
+	};
 	return (
 		<Container>
 			<Header>
@@ -42,10 +61,14 @@ function User({ navigation }) {
 				<Loading />
 			) : (
 				<Stars
+					onEndReachedThreshold={0.1}
+					onEndReached={() => loadMore()}
+					// onRefresh={() => refreshList()}
+					// refreshing={refresh}
 					data={stars}
 					keyExtractor={star => String(star.id)}
 					renderItem={({ item }) => (
-						<Starred>
+						<Starred onPress={() => navigate('Repository', { item })}>
 							<OwnerAvatar source={{ uri: item.owner.avatar_url }} />
 							<Info>
 								<Title>{item.name}</Title>

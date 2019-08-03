@@ -60,11 +60,13 @@ export default function Main() {
 					autoCapitalize="none"
 					placeholder="Adicionar usuário"
 					value={newUser}
+					returnKeyType="send"
 					onChangeText={text => setUserName(text)}
+					onSubmitEditing={() => fetchMyAPI()}
 				/>
 				<SubmitButton loading={loading} onPress={() => fetchMyAPI()}>
 					{loading ? (
-						<ActivityIndicator color="#fff" />
+						<ActivityIndicator color="#05BB52" />
 					) : (
 						<Icon name="add" size={20} color="#fff" />
 					)}
@@ -80,7 +82,7 @@ export default function Main() {
 						<Name>{item.nome}</Name>
 						<Bio>{item.bio}</Bio>
 
-						<ProfileButton onPress={() => navigate('User', item)}>
+						<ProfileButton onPress={() => navigate('User', { item })}>
 							<ProfileButtonText>Ver perfil</ProfileButtonText>
 						</ProfileButton>
 					</User>

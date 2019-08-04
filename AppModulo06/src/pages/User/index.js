@@ -37,19 +37,20 @@ function User({ navigation }) {
 		setLoading(false);
 		setRefresh(false);
 	};
+
 	useEffect(() => {
 		fetchAPI(page);
 	}, [page]);
-
-	const refreshList = () => {
-		setRefresh(true);
-		setStars([]);
-	};
 	const loadMore = () => {
 		const nextPage = page + 1;
 
 		fetchAPI(nextPage);
 	};
+	const refreshList = () => {
+		setRefresh(true);
+		setStars([]);
+	};
+
 	return (
 		<Container>
 			<Header>
@@ -61,7 +62,7 @@ function User({ navigation }) {
 				<Loading />
 			) : (
 				<Stars
-					onEndReachedThreshold={0.1}
+					onEndReachedThreshold={0.3}
 					onEndReached={() => loadMore()}
 					// onRefresh={() => refreshList()}
 					// refreshing={refresh}

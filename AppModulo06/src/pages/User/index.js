@@ -1,95 +1,117 @@
-import React, { useEffect, useState } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { navigate } from '../../services/navigations';
+
 import api from '../../services/api';
+
 import {
 	Container,
 	Header,
 	Avatar,
 	Name,
 	Bio,
+	Loading,
 	Stars,
 	Starred,
 	OwnerAvatar,
 	Info,
 	Title,
 	Author,
-	Loading,
 } from './styles';
 
-function User({ navigation }) {
-	const [stars, setStars] = useState([]);
-	const [loading, setLoading] = useState(false);
-	const [page, setPage] = useState(1);
-	const [refresh, setRefresh] = useState(false);
-	const user = navigation.getParam('item');
+export default class User extends Component {
+	static navigationOptions = ({ navigation }) => ({
+		title: navigation.getParam('item').name,
+	});
 
-	// Cria função para chamada API
-	const fetchAPI = async pg => {
-		setLoading(true);
-		const response = await api.get(`/users/${user.login}/starred`, {
-			params: { pg },
-		});
-		console.tron.log('TCL: fetchAPI -> pg', pg);
-		console.tron.log('TCL: fetchAPI -> response', response);
-		setStars(pg >= 2 ? [...stars, ...response.data] : response.data);
-
-		setLoading(false);
-		setRefresh(false);
+	static propTypes = {
+		navigation: PropTypes.shape({
+			getParam: PropTypes.func,
+			navigate: PropTypes.func,
+		}).isRequired,
 	};
 
-	useEffect(() => {
-		fetchAPI(page);
-	}, [page]);
-	const loadMore = () => {
+	state = {
+		stars: [],
+		page: 1,
+		loading: true,
+		refreshing: false,
+	};
+
+	async componentDidMount() {
+		this.load();
+	}
+
+	load = async (page = 1) => {
+		const { stars } = this.state;
+		const { navigation } = this.props;
+		const user = navigation.getParam('item');
+
+		const response = await api.get(`/users/${user.login}/starred`, {
+			params: { page },
+		});
+
+		this.setState({
+			stars: page >= 2 ? [...stars, ...response.data] : response.data,
+			page,
+			loading: false,
+			refreshing: false,
+		});
+	};
+
+	loadMore = () => {
+		const { page } = this.state;
+
 		const nextPage = page + 1;
 
-		fetchAPI(nextPage);
-	};
-	const refreshList = () => {
-		setRefresh(true);
-		setStars([]);
+		this.load(nextPage);
 	};
 
-	return (
-		<Container>
-			<Header>
-				<Avatar source={{ uri: user.avatar }} />
-				<Name>{user.nome}</Name>
-				<Bio>{user.bio}</Bio>
-			</Header>
-			{loading ? (
-				<Loading />
-			) : (
-				<Stars
-					onEndReachedThreshold={0.3}
-					onEndReached={() => loadMore()}
-					// onRefresh={() => refreshList()}
-					// refreshing={refresh}
-					data={stars}
-					keyExtractor={star => String(star.id)}
-					renderItem={({ item }) => (
-						<Starred onPress={() => navigate('Repository', { item })}>
-							<OwnerAvatar source={{ uri: item.owner.avatar_url }} />
-							<Info>
-								<Title>{item.name}</Title>
-								<Author>{item.owner.login}</Author>
-							</Info>
-						</Starred>
-					)}
-				/>
-			)}
-		</Container>
-	);
+	refreshList = () => {
+		this.setState({ refreshing: true, stars: [] }, this.load);
+	};
+
+	handleNavigate = repository => {
+		const { navigation } = this.props;
+
+		navigation.navigate('Repository', { repository });
+	};
+
+	render() {
+		const { navigation } = this.props;
+		const { stars, loading, refreshing } = this.state;
+
+		const user = navigation.getParam('item');
+
+		return (
+			<Container>
+				<Header>
+					<Avatar source={{ uri: user.avatar }} />
+					<Name>{user.name}</Name>
+					<Bio>{user.bio}</Bio>
+				</Header>
+
+				{loading ? (
+					<Loading />
+				) : (
+					<Stars
+						data={stars}
+						onRefresh={this.refreshList}
+						refreshing={refreshing}
+						onEndReachedThreshold={0.2}
+						onEndReached={this.loadMore}
+						keyExtractor={star => String(star.id)}
+						renderItem={({ item }) => (
+							<Starred onPress={() => this.handleNavigate(item)}>
+								<OwnerAvatar source={{ uri: item.owner.avatar_url }} />
+								<Info>
+									<Title>{item.name}</Title>
+									<Author>{item.owner.login}</Author>
+								</Info>
+							</Starred>
+						)}
+					/>
+				)}
+			</Container>
+		);
+	}
 }
-
-User.navigationOptions = ({ navigation }) => ({
-	title: navigation.getParam('item').nome,
-});
-
-User.propTypes = {
-	navigation: PropTypes.shape({
-		getParam: PropTypes.func,
-	}).isRequired,
-};
-export default User;

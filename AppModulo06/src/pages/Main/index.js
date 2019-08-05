@@ -28,7 +28,7 @@ export default function Main() {
 		const res = await api.get(`/users/${newUser}`);
 
 		const data = {
-			nome: res.data.name,
+			name: res.data.name,
 			login: res.data.login,
 			bio: res.data.bio,
 			avatar: res.data.avatar_url,
@@ -79,7 +79,7 @@ export default function Main() {
 				renderItem={({ item }) => (
 					<User>
 						<Avatar source={{ uri: item.avatar }} />
-						<Name>{item.nome}</Name>
+						<Name>{item.name}</Name>
 						<Bio>{item.bio}</Bio>
 
 						<ProfileButton onPress={() => navigate('User', { item })}>

@@ -14,6 +14,7 @@ import {
 	Name,
 	Bio,
 	ProfileButton,
+	RemoveProfileButton,
 	ProfileButtonText,
 } from './styles';
 import api from '../../services/api';
@@ -43,6 +44,7 @@ export default function Main() {
 	useEffect(() => {
 		const fetchStore = async () => {
 			const store = await AsyncStorage.getItem('users');
+			console.log('TCL: fetchStore -> store', store);
 			if (store) setNewUser(JSON.parse(store));
 		};
 		fetchStore();
@@ -52,6 +54,10 @@ export default function Main() {
 		AsyncStorage.setItem('users', JSON.stringify(users));
 	}, [users]);
 
+	const removeUser = props => {
+		users.splice(props, 1);
+		setNewUser([...users]);
+	};
 	return (
 		<Container>
 			<Form>
@@ -85,6 +91,9 @@ export default function Main() {
 						<ProfileButton onPress={() => navigate('User', { item })}>
 							<ProfileButtonText>Ver perfil</ProfileButtonText>
 						</ProfileButton>
+						<RemoveProfileButton onPress={() => removeUser({ item })}>
+							<ProfileButtonText>Remover</ProfileButtonText>
+						</RemoveProfileButton>
 					</User>
 				)}
 			/>

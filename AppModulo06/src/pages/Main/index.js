@@ -44,7 +44,6 @@ export default function Main() {
 	useEffect(() => {
 		const fetchStore = async () => {
 			const store = await AsyncStorage.getItem('users');
-			console.log('TCL: fetchStore -> store', store);
 			if (store) setNewUser(JSON.parse(store));
 		};
 		fetchStore();

@@ -60,9 +60,7 @@ export default class User extends Component {
 
 	loadMore = () => {
 		const { page } = this.state;
-
 		const nextPage = page + 1;
-
 		this.load(nextPage);
 	};
 
@@ -72,7 +70,6 @@ export default class User extends Component {
 
 	handleNavigate = repository => {
 		const { navigation } = this.props;
-
 		navigation.navigate('Repository', { repository });
 	};
 
